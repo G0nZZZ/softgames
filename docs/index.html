@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assignment</title>
+
+  <!-- Unity CSS -->
+  <link rel="stylesheet" href="TemplateData/style.css">
+
+  <!-- Estilos propios (inclúyelo después) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Assignment</h1>
+  </header>
+
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+
+    <div id="unity-warning"></div>
+
+    <div id="unity-footer">
+      <div id="unity-build-title">Assignment</div>
+      <div id="unity-fullscreen-button"></div>
+    </div>
+  </div>
+
+  <footer>
+    <small>© Alex Lasheras.</small>
+  </footer>
+
+  <script>
+    // --- Unity bootstrap (igual que tienes, solo adaptado con rutas relativas) ---
+    var canvas = document.querySelector("#unity-canvas");
+    function unityShowBanner(msg, type) {
+      var warningBanner = document.querySelector("#unity-warning");
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function() {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/Builds.loader.js";
+    var config = {
+      dataUrl: buildUrl + "/Builds.data",
+      frameworkUrl: buildUrl + "/Builds.framework.js",
+      codeUrl: buildUrl + "/Builds.wasm",
+      showBanner: unityShowBanner,
+    };
+
+    document.querySelector("#unity-loading-bar").style.display = "block";
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+      }).then((unityInstance) => {
+        document.querySelector("#unity-loading-bar").style.display = "none";
+        document.querySelector("#unity-fullscreen-button").onclick = () => {
+          unityInstance.SetFullscreen(1);
+        };
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
